@@ -37,18 +37,19 @@ spec:
             - name: AWS_ACCESS_KEY_ID
               value: {{ .Values.outline.aws.s3.accessKeyId | default "" | quote }}
             - name: AWS_SECRET_ACCESS_KEY
-              valueFrom:
-                secretKeyRef:
-                {{- if .Values.outline.aws.s3.accessKey }}
-                name: {{ .Values.outline.aws.s3.accessKey }}
-                {{- else }}
-                name: {{ template "outline.minio.fullname" . }}
-                {{- end }}
-                {{- if .Values.outline.aws.s3.secretKey }}
-                key: {{ .Values.outline.aws.s3.secretKey }}
-                {{- else }}
-                key: {{ template "outline.minio.secretKey" . }}
-                {{- end }}
+              value: {{ .Values.outline.aws.s3.accessKey | default "" | quote }}
+#              valueFrom:
+#                secretKeyRef:
+#                {{- if .Values.outline.aws.s3.accessKey }}
+#                name: {{ .Values.outline.aws.s3.accessKey }}
+#                {{- else }}
+#                name: {{ template "outline.minio.fullname" . }}
+#                {{- end }}
+#                {{- if .Values.outline.aws.s3.secretKey }}
+#                key: {{ .Values.outline.aws.s3.secretKey }}
+#                {{- else }}
+#                key: {{ template "outline.minio.secretKey" . }}
+#                {{- end }}
             - name: AWS_REGION
               value: {{ .Values.outline.aws.s3.region | default "" | quote }}
             - name: AWS_S3_ACL
