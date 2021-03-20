@@ -34,6 +34,8 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
+            - name: SECRET_KEY
+              value: $(openssl rand -base64 32)
             - name: AWS_ACCESS_KEY_ID
               value: {{ .Values.outline.aws.s3.accessKeyId | default "" | quote }}
             - name: AWS_SECRET_ACCESS_KEY
