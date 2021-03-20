@@ -39,13 +39,13 @@ spec:
             - name: AWS_SECRET_ACCESS_KEY
               valueFrom:
                 secretKeyRef:
-                {{- if .Values.aws.s3.accessKey }}
-                name: {{ .Values.aws.s3.accessKey }}
+                {{- if .Values.outline.aws.s3.accessKey }}
+                name: {{ .Values.outline.aws.s3.accessKey }}
                 {{- else }}
                 name: {{ template "outline.minio.fullname" . }}
                 {{- end }}
-                {{- if .Values.aws.s3.secretKey }}
-                key: {{ .Values.aws.s3.secretKey }}
+                {{- if .Values.outline.aws.s3.secretKey }}
+                key: {{ .Values.outline.aws.s3.secretKey }}
                 {{- else }}
                 key: {{ template "outline.minio.secretKey" . }}
                 {{- end }}
