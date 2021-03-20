@@ -61,3 +61,24 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+
+{{/*
+Create a default fully qualified app name.
+We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
+*/}}
+{{- define "outline.minio.fullname" -}}
+{{- if .Values.minio.fullnameOverride -}}
+{{- .Values.minio.fullnameOverride | trunc 63 | trimSuffix "-" -}}
+{{- else -}}
+{{ printf "%s-%s" .Release.Name "minio"}}
+{{- end -}}
+{{- end -}}
+
+
+{{/*
+Set minio secretKey
+*/}}
+{{- define "outline.minio.secretKey" -}}
+"secretkey"
+{{- end -}}

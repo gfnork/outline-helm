@@ -17,6 +17,8 @@ outline:
         - example.net
   aws:
     s3:
+      accessKeyId: ""
+      accessKey: ""
       acl: private
       bucket: ""
       endpoint: ""
