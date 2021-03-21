@@ -78,8 +78,12 @@ spec:
               value: {{ .Values.outline.enableUpdates | default "false" | quote }}
             - name: FORCE_HTTPS
               value: {{ .Values.outline.forceHttps | default "false" | quote }}
-            - name: GOOGLE_ALLOWED_DOMAINS
+            - name: ALLOWED_DOMAINS
               value: {{ .Values.outline.auth.google.allowedDomains | join "," | quote }}
+            - name: GOOGLE_CLIENT_ID
+              value: {{ .Values.outline.auth.google.clientId | join "," | quote }}
+            - name: GOOGLE_CLIENT_SECRET
+              value: {{ .Values.outline.auth.google.clientSecret | join "," | quote }}
             - name: PORT
               value: {{ .Values.outline.containerPort | default 3000 | quote }}
             - name: TEAM_LOGO
