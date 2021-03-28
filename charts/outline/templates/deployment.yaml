@@ -60,6 +60,8 @@ spec:
               value: {{ .Values.outline.databaseUrlTest | default "" | quote }}
             - name: SECRET_KEY
               value: {{ .Values.outline.secretKey | default "" | quote }}
+            - name: UTILS_SECRET
+              value: {{ .Values.outline.utilsSecret | default "" | quote }}
             - name: AWS_ACCESS_KEY_ID
               value: {{ .Values.outline.aws.s3.accessKeyId | default "" | quote }}
             - name: AWS_SECRET_ACCESS_KEY
