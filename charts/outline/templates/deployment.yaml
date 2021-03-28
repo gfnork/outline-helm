@@ -50,8 +50,8 @@ spec:
               value: {{ .Values.outline.mail.smtp.fromEmail | default "" | quote }}
             - name: SMTP_REPLY_EMAIL
               value: {{ .Values.outline.mail.smtp.replyToEmail | default "" | quote }}
-            - name: NODE_ENV
-              value: "development"
+#            - name: NODE_ENV
+#              value: "development"
             - name: PGSSLMODE
               value: "disable"
             - name: DATABASE_URL
