@@ -7,7 +7,7 @@ fullnameOverride: ""
 image:
   repository: outlinewiki/outline
   pullPolicy: IfNotPresent
-  tag: "version-0.53.1"
+  tag: "version-0.54.0"
 
 outline:
   auth:
