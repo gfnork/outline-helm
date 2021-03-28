@@ -10,6 +10,14 @@ image:
   tag: "version-0.54.0"
 
 outline:
+  mail:
+    smtp:
+      host: ""
+      port: ""
+      username: ""
+      password: ""
+      fromEmail: ""
+      toEmail: ""
   auth:
     google:
       allowedDomains:

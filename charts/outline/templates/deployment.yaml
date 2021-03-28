@@ -38,6 +38,18 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
+            - name: SMTP_HOST
+              value: {{ .Values.outline.mail.smtp.host | default "" | quote }}
+            - name: SMTP_PORT
+              value: {{ .Values.outline.mail.smtp.port | default "" | quote }}
+            - name: SMTP_USERNAME
+              value: {{ .Values.outline.mail.smtp.username | default "" | quote }}
+            - name: SMTP_PASSWORD
+              value: {{ .Values.outline.mail.smtp.password | default "" | quote }}
+            - name: SMTP_FROM_EMAIL
+              value: {{ .Values.outline.mail.smtp.fromMail | default "" | quote }}
+            - name: SMTP_REPLY_EMAIL
+              value: {{ .Values.outline.mail.smtp.toMail | default "" | quote }}
             - name: NODE_ENV
               value: "development"
             - name: PGSSLMODE
