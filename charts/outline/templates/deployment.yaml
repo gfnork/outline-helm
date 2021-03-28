@@ -62,6 +62,8 @@ spec:
               value: {{ .Values.outline.secretKey | default "" | quote }}
             - name: UTILS_SECRET
               value: {{ .Values.outline.utilsSecret | default "" | quote }}
+            - name: AWS_S3_FORCE_PATH_STYLE
+              value: {{ .Values.outline.aws.s3.forcePathStyle | default "true" | quote }}
             - name: AWS_ACCESS_KEY_ID
               value: {{ .Values.outline.aws.s3.accessKeyId | default "" | quote }}
             - name: AWS_SECRET_ACCESS_KEY
