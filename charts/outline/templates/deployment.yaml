@@ -47,9 +47,9 @@ spec:
             - name: SMTP_PASSWORD
               value: {{ .Values.outline.mail.smtp.password | default "" | quote }}
             - name: SMTP_FROM_EMAIL
-              value: {{ .Values.outline.mail.smtp.fromMail | default "" | quote }}
+              value: {{ .Values.outline.mail.smtp.fromEmail | default "" | quote }}
             - name: SMTP_REPLY_EMAIL
-              value: {{ .Values.outline.mail.smtp.toMail | default "" | quote }}
+              value: {{ .Values.outline.mail.smtp.replyToEmail | default "" | quote }}
             - name: NODE_ENV
               value: "development"
             - name: PGSSLMODE
