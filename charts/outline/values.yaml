@@ -7,7 +7,7 @@ fullnameOverride: ""
 image:
   repository: outlinewiki/outline
   pullPolicy: IfNotPresent
-  tag: "version-0.59.0"
+  tag: "0.61.1"
 
 outline:
   mail:
