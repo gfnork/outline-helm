@@ -6,7 +6,7 @@ version: 0.1.0
 appVersion: 0.61.1
 dependencies:
   - name: redis
-    version: ~12.8.3
+    version: ~16.3.0
     repository: https://charts.bitnami.com/bitnami
 maintainers:
   - name: Gabriel Montañola
