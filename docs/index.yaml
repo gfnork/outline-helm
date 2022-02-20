@@ -2,24 +2,22 @@ apiVersion: v1
 entries:
   outline:
   - apiVersion: v2
-    appVersion: 0.53.1
-    created: "2021-03-11T15:47:38.909219209-03:00"
+    appVersion: 0.61.1
+    created: "2022-02-20T22:39:06.4553142+02:00"
     dependencies:
     - name: redis
       repository: https://charts.bitnami.com/bitnami
-      version: ~12.8.3
+      version: ~16.4.0
     description: A Helm chart for https://github.com/outline/outline
-    digest: 3182d89ff92d6a5695962ac30d2998f394471d674edbfa52dd6b2b87cb29dd5b
+    digest: 95fc8ce4a35b4386a4ae035f142e0441aa102a447c7aade2850da420be00d50b
     maintainers:
-    - email: gabriel.ricardo@iclinic.com.br
-      name: Gabriel Montañola
-    - email: marcio.godoy@iclinic.com.br
-      name: Marcio Rodrigues
+    - email: qiong.wu@gfnork.de
+      name: Qiong Wu
     name: outline
     sources:
-    - https://github.com/iclinic/outline-helm
+    - https://github.com/gfnork/outline-helm
     type: application
     urls:
-    - https://iclinic.github.io/outline-helm/outline-0.1.0.tgz
-    version: 0.1.0
-generated: "2021-03-11T15:47:38.90522185-03:00"
+    - docs/outline-0.2.0.tgz
+    version: 0.2.0
+generated: "2022-02-20T22:39:06.4426794+02:00"
