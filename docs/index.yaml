@@ -18,6 +18,6 @@ entries:
     - https://github.com/gfnork/outline-helm
     type: application
     urls:
-    - docs/outline-0.2.0.tgz
+    - outline-0.2.0.tgz
     version: 0.2.0
 generated: "2022-02-20T22:39:06.4426794+02:00"
