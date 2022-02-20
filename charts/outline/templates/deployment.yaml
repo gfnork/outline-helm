@@ -98,16 +98,16 @@ spec:
               value: { { .Values.outline.forceHttps | default "false" | quote } }
             - name: ALLOWED_DOMAINS
               value: { { .Values.outline.auth.google.allowedDomains | join "," | quote }}
-                      - name: GOOGLE_CLIENT_ID
-                        value: {{ .Values.outline.auth.google.clientId | join "," | quote }}
-                      - name: GOOGLE_CLIENT_SECRET
-                        value: {{ .Values.outline.auth.google.clientSecret | join "," | quote }}
-                      - name: PORT
-                        value: {{ .Values.outline.containerPort | default 3000 | quote }}
-                      - name: TEAM_LOGO
-                        value: {{ .Values.outline.teamLogo | default "" | quote }}
-                      - name: URL
-                        value: {{ .Values.outline.externalUrl | required "Please set this release's external URL" | quote } }
+            - name: GOOGLE_CLIENT_ID
+              value: {{ .Values.outline.auth.google.clientId | join "," | quote }}
+            - name: GOOGLE_CLIENT_SECRET
+              value: {{ .Values.outline.auth.google.clientSecret | join "," | quote }}
+            - name: PORT
+              value: {{ .Values.outline.containerPort | default 3000 | quote }}
+            - name: TEAM_LOGO
+              value: {{ .Values.outline.teamLogo | default "" | quote }}
+            - name: URL
+              value: {{ .Values.outline.externalUrl | required "Please set this release's external URL" | quote } }
             - name: REDIS_URL
               value: "redis://{{ include "outline.fullname" . }}-redis-master.{{ .Release.Namespace }}.svc.cluster.local.:6379"
             { { - with .Values.env } }
