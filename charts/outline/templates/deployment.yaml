@@ -117,21 +117,6 @@ spec:
           envFrom:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          ports:
-            - name: http
-              containerPort: {{ .Values.outline.containerPort | default 3000 }}
-              protocol: TCP
-          livenessProbe:
-            httpGet:
-              path: /
-              port: http
-            initialDelaySeconds: 90
-            periodSeconds: 5
-          readinessProbe:
-            httpGet:
-              path: /
-              port: http
-            periodSeconds: 5
           resources:
             {{- toYaml .Values.resources | nindent 12 }}	  
           args:
