@@ -107,7 +107,7 @@ spec:
             - name: TEAM_LOGO
               value: {{ .Values.outline.teamLogo | default "" | quote }}
             - name: URL
-              value: {{ .Values.outline.externalUrl | required "Please set this release's external URL" | quote } }
+              value: {{ .Values.outline.externalUrl | required "Please set this release's external URL" | quote }}
             - name: REDIS_URL
               value: "redis://{{ include "outline.fullname" . }}-redis-master.{{ .Release.Namespace }}.svc.cluster.local.:6379"
             { { - with .Values.env } }
