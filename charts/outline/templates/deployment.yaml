@@ -31,6 +31,96 @@ spec:
         options:
           - name: ndots
             value: "1"
+      initContainers:
+        - name: { { .Chart.Name } }
+          securityContext:
+            { { - toYaml .Values.securityContext | nindent 12 } }
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: { { .Values.image.pullPolicy } }
+          env:
+            - name: SMTP_HOST
+              value: { { .Values.outline.mail.smtp.host | default "" | quote } }
+            - name: SMTP_PORT
+              value: { { .Values.outline.mail.smtp.port | default "" | quote } }
+            - name: SMTP_USERNAME
+              value: { { .Values.outline.mail.smtp.username | default "" | quote } }
+            - name: SMTP_PASSWORD
+              value: { { .Values.outline.mail.smtp.password | default "" | quote } }
+            - name: SMTP_FROM_EMAIL
+              value: { { .Values.outline.mail.smtp.fromEmail | default "" | quote } }
+            - name: SMTP_REPLY_EMAIL
+              value: { { .Values.outline.mail.smtp.replyToEmail | default "" | quote } }
+            #            - name: NODE_ENV
+            #              value: "development"
+            - name: PGSSLMODE
+              value: "disable"
+            - name: DATABASE_URL
+              value: { { .Values.outline.databaseUrl | default "" | quote } }
+            - name: DATABASE_URL_TEST
+              value: { { .Values.outline.databaseUrlTest | default "" | quote } }
+            - name: SECRET_KEY
+              value: { { .Values.outline.secretKey | default "" | quote } }
+            - name: UTILS_SECRET
+              value: { { .Values.outline.utilsSecret | default "" | quote } }
+            - name: AWS_S3_FORCE_PATH_STYLE
+              value: { { .Values.outline.aws.s3.forcePathStyle | default "true" | quote } }
+            - name: AWS_ACCESS_KEY_ID
+              value: { { .Values.outline.aws.s3.accessKeyId | default "" | quote } }
+            - name: AWS_SECRET_ACCESS_KEY
+              value: { { .Values.outline.aws.s3.accessKey | default "" | quote } }
+            #              valueFrom:
+            #                secretKeyRef:
+            #                {{- if .Values.outline.aws.s3.accessKey }}
+            #                name: {{ .Values.outline.aws.s3.accessKey }}
+            #                {{- else }}
+            #                name: {{ template "outline.minio.fullname" . }}
+            #                {{- end }}
+            #                {{- if .Values.outline.aws.s3.secretKey }}
+            #                key: {{ .Values.outline.aws.s3.secretKey }}
+            #                {{- else }}
+            #                key: {{ template "outline.minio.secretKey" . }}
+            #                {{- end }}
+            - name: AWS_REGION
+              value: { { .Values.outline.aws.s3.region | default "" | quote } }
+            - name: AWS_S3_ACL
+              value: { { .Values.outline.aws.s3.acl | default "private" | quote } }
+            - name: AWS_S3_UPLOAD_BUCKET_NAME
+              value: { { .Values.outline.aws.s3.bucket | default "" | quote } }
+            - name: AWS_S3_UPLOAD_BUCKET_URL
+              value: { { .Values.outline.aws.s3.endpoint | default "" | quote } }
+            - name: AWS_S3_UPLOAD_MAX_SIZE
+              value: { { .Values.outline.aws.s3.maxSize | default "" | quote } }
+            - name: DEBUG
+              value: { { .Values.outline.debug | default "" | quote } }
+            - name: ENABLE_UPDATES
+              value: { { .Values.outline.enableUpdates | default "false" | quote } }
+            - name: FORCE_HTTPS
+              value: { { .Values.outline.forceHttps | default "false" | quote } }
+            - name: ALLOWED_DOMAINS
+              value: { { .Values.outline.auth.google.allowedDomains | join "," | quote }}
+                      - name: GOOGLE_CLIENT_ID
+                        value: {{ .Values.outline.auth.google.clientId | join "," | quote }}
+                      - name: GOOGLE_CLIENT_SECRET
+                        value: {{ .Values.outline.auth.google.clientSecret | join "," | quote }}
+                      - name: PORT
+                        value: {{ .Values.outline.containerPort | default 3000 | quote }}
+                      - name: TEAM_LOGO
+                        value: {{ .Values.outline.teamLogo | default "" | quote }}
+                      - name: URL
+                        value: {{ .Values.outline.externalUrl | required "Please set this release's external URL" | quote } }
+            - name: REDIS_URL
+              value: "redis://{{ include "outline.fullname" . }}-redis-master.{{ .Release.Namespace }}.svc.cluster.local.:6379"
+            { { - with .Values.env } }
+            { { - toYaml . | nindent 12 } }
+            { { - end } }
+            { { - with .Values.envFrom } }
+          envFrom:
+            { { - toYaml . | nindent 12 } }
+            { { - end } }
+          args:
+            - "yarn"
+            - "db:migrate"
+            - "--env=production-ssl-disabled"
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
