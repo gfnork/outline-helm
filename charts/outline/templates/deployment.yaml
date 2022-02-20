@@ -32,7 +32,7 @@ spec:
           - name: ndots
             value: "1"
       initContainers:
-        - name: {{ .Chart.Name }}
+        - name: {{ .Chart.Name }}-migrate
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
