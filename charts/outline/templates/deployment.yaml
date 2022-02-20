@@ -34,7 +34,7 @@ spec:
       initContainers:
         - name: {{ .Chart.Name }}
           securityContext:
-            {{ - toYaml .Values.securityContext | nindent 12 }}
+            {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
@@ -50,8 +50,8 @@ spec:
               value: {{ .Values.outline.mail.smtp.fromEmail | default "" | quote }}
             - name: SMTP_REPLY_EMAIL
               value: {{ .Values.outline.mail.smtp.replyToEmail | default "" | quote }}
-            #            - name: NODE_ENV
-            #              value: "development"
+#            - name: NODE_ENV
+#              value: "development"
             - name: PGSSLMODE
               value: "disable"
             - name: DATABASE_URL
@@ -68,18 +68,18 @@ spec:
               value: {{ .Values.outline.aws.s3.accessKeyId | default "" | quote }}
             - name: AWS_SECRET_ACCESS_KEY
               value: {{ .Values.outline.aws.s3.accessKey | default "" | quote }}
-            #              valueFrom:
-            #                secretKeyRef:
-            #                {{- if .Values.outline.aws.s3.accessKey }}
-            #                name: {{ .Values.outline.aws.s3.accessKey }}
-            #                {{- else }}
-            #                name: {{ template "outline.minio.fullname" . }}
-            #                {{- end }}
-            #                {{- if .Values.outline.aws.s3.secretKey }}
-            #                key: {{ .Values.outline.aws.s3.secretKey }}
-            #                {{- else }}
-            #                key: {{ template "outline.minio.secretKey" . }}
-            #                {{- end }}
+#              valueFrom:
+#                secretKeyRef:
+#                {{- if .Values.outline.aws.s3.accessKey }}
+#                name: {{ .Values.outline.aws.s3.accessKey }}
+#                {{- else }}
+#                name: {{ template "outline.minio.fullname" . }}
+#                {{- end }}
+#                {{- if .Values.outline.aws.s3.secretKey }}
+#                key: {{ .Values.outline.aws.s3.secretKey }}
+#                {{- else }}
+#                key: {{ template "outline.minio.secretKey" . }}
+#                {{- end }}
             - name: AWS_REGION
               value: {{ .Values.outline.aws.s3.region | default "" | quote }}
             - name: AWS_S3_ACL
@@ -110,13 +110,13 @@ spec:
               value: {{ .Values.outline.externalUrl | required "Please set this release's external URL" | quote }}
             - name: REDIS_URL
               value: "redis://{{ include "outline.fullname" . }}-redis-master.{{ .Release.Namespace }}.svc.cluster.local.:6379"
-            {{ - with .Values.env }}
-            {{ - toYaml . | nindent 12 }}
-            {{ - end }}
-            {{ - with .Values.envFrom }}
+          {{- with .Values.env }}
+          {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.envFrom }}
           envFrom:
-            {{ - toYaml . | nindent 12 }}
-          {{ - end }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           ports:
             - name: http
               containerPort: {{ .Values.outline.containerPort | default 3000 }}
@@ -133,7 +133,7 @@ spec:
               port: http
             periodSeconds: 5
           resources:
-            {{ - toYaml .Values.resources | nindent 12 }}
+            {{- toYaml .Values.resources | nindent 12 }}	  
           args:
             - "yarn"
             - "db:migrate"
