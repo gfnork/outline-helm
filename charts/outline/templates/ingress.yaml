@@ -31,9 +31,9 @@ spec:
     - host: {{ .host | quote }}
       http:
         paths:
-        pathType: Prefix
           {{- range .paths }}
           - path: {{ . }}
+            pathType: Prefix
             backend:
               service:
                 name: {{ $fullName }}
