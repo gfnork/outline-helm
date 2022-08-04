@@ -2,8 +2,8 @@ apiVersion: v2
 name: outline
 description: A Helm chart for https://github.com/outline/outline
 type: application
-version: 0.2.8
-appVersion: 0.61.1
+version: 0.2.9
+appVersion: 0.65.2
 dependencies:
   - name: redis
     version: ~16.4.0
