@@ -3,6 +3,25 @@ entries:
   outline:
   - apiVersion: v2
     appVersion: 0.65.2
+    created: "2022-08-04T14:50:31.091123398Z"
+    dependencies:
+    - name: redis
+      repository: https://charts.bitnami.com/bitnami
+      version: ~16.4.0
+    description: A Helm chart for https://github.com/outline/outline
+    digest: 1783bc561bf222ff0b95cc023bd1164f4ca3464023911b55a79fcb42604dbfe5
+    maintainers:
+    - email: qiong.wu@gfnork.de
+      name: Qiong Wu
+    name: outline
+    sources:
+    - https://github.com/gfnork/outline-helm
+    type: application
+    urls:
+    - https://github.com/gfnork/outline-helm/releases/download/outline-0.3.0/outline-0.3.0.tgz
+    version: 0.3.0
+  - apiVersion: v2
+    appVersion: 0.65.2
     created: "2022-08-04T14:44:36.403726298Z"
     dependencies:
     - name: redis
@@ -39,4 +58,4 @@ entries:
     urls:
     - https://github.com/gfnork/outline-helm/releases/download/outline-0.2.8/outline-0.2.8.tgz
     version: 0.2.8
-generated: "2022-08-04T14:44:36.403736898Z"
+generated: "2022-08-04T14:50:31.091147593Z"
