@@ -90,6 +90,8 @@ spec:
               value: {{ .Values.outline.aws.s3.endpoint | default "" | quote }}
             - name: AWS_S3_UPLOAD_MAX_SIZE
               value: {{ .Values.outline.aws.s3.maxSize | default "" | quote }}
+            - name: FILE_STORAGE_UPLOAD_MAX_SIZE
+              value: {{ .Values.outline.aws.s3.maxSize | default "" | quote }}
             - name: DEBUG
               value: {{ .Values.outline.debug | default "" | quote }}
             - name: ENABLE_UPDATES
