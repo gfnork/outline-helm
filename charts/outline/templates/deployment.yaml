@@ -119,10 +119,11 @@ spec:
           {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}	  
+          command:
+            - "sh"
+            - "-c"
           args:
-            - "yarn"
-            - "db:migrate"
-            - "--env=production-ssl-disabled"
+            - "corepack enable && yarn db:migrate --env=production-ssl-disabled"
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
