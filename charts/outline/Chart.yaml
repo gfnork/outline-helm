@@ -2,12 +2,8 @@ apiVersion: v2
 name: outline
 description: A Helm chart for https://github.com/outline/outline
 type: application
-version: 0.5.1
+version: 0.5.2
 appVersion: 1.10.1
-dependencies:
-  - name: redis
-    version: 24.1.0
-    repository: oci://registry-1.docker.io/bitnamicharts
 maintainers:
   - name: Qiong Wu
     email: qiong.wu@gfnork.de
