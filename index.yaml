@@ -3,6 +3,21 @@ entries:
   outline:
   - apiVersion: v2
     appVersion: 1.10.1
+    created: "2026-10-01T14:49:18.478620975Z"
+    description: A Helm chart for https://github.com/outline/outline
+    digest: c7faed7cccf1f52c0fc9ce24a3cae06a52671728487eac3b3e5c520e97340163
+    maintainers:
+    - email: qiong.wu@gfnork.de
+      name: Qiong Wu
+    name: outline
+    sources:
+    - https://github.com/gfnork/outline-helm
+    type: application
+    urls:
+    - https://github.com/gfnork/outline-helm/releases/download/outline-0.5.2/outline-0.5.2.tgz
+    version: 0.5.2
+  - apiVersion: v2
+    appVersion: 1.10.1
     created: "2026-10-01T14:31:19.649110472Z"
     dependencies:
     - name: redis
@@ -134,4 +149,4 @@ entries:
     urls:
     - https://github.com/gfnork/outline-helm/releases/download/outline-0.2.8/outline-0.2.8.tgz
     version: 0.2.8
-generated: "2026-10-01T14:31:19.64912923Z"
+generated: "2026-10-01T14:49:18.47863782Z"
