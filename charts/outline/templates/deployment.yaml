@@ -120,10 +120,10 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}	  
           command:
-            - "sh"
-            - "-c"
+            - "/opt/outline/node_modules/.bin/sequelize"
           args:
-            - "corepack enable && yarn db:migrate --env=production-ssl-disabled"
+            - "db:migrate"
+            - "--env=production-ssl-disabled"
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
