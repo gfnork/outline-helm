@@ -1,0 +1,135 @@
+# This community chart uses the experimental upstream web-only image.
+# Keep the image and chart versions independent; test restores before upgrading.
+nameOverride: ""
+fullnameOverride: ""
+hostname: discourse.example.com
+image:
+  repository: discourse/discourse
+  tag: "2026.7.4"
+  # Overrides tag when set. This is the multi-architecture manifest digest.
+  digest: sha256:6818250fe05d74a9745ab5c9324b22d3feafa1809e2cb0f794ec0c3ad5ee576a
+  pullPolicy: IfNotPresent
+imagePullSecrets: []
+
+# All credentials must already exist as Kubernetes Secrets in this namespace.
+database:
+  host: postgresql.example.internal
+  port: 5432
+  name: discourse
+  username: discourse
+  existingSecret: discourse-database
+  passwordKey: password
+
+web:
+  enabled: true
+  # Upstream supervisor manages the web processes AND embedded Sidekiq.
+  workers: 2
+  # Set to 0 during restore/cutover validation to leave queued jobs untouched.
+  sidekiqWorkers: 1
+  terminationGracePeriodSeconds: 120
+  resources:
+    requests:
+      cpu: 500m
+      memory: 1Gi
+    limits:
+      memory: 3Gi
+  startupProbe:
+    httpGet:
+      path: /srv/status
+      port: http
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 90
+  readinessProbe:
+    httpGet:
+      path: /srv/status
+      port: http
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+  # TCP detects a stopped Nginx without restarting Rails for a DB outage.
+  livenessProbe:
+    tcpSocket:
+      port: http
+    periodSeconds: 20
+    timeoutSeconds: 5
+    failureThreshold: 6
+
+# No Helm hook and no automatic schema changes on pod restart.
+# Run this Job explicitly with web.enabled=false; see README.md.
+migration:
+  enabled: false
+  backoffLimit: 0
+  activeDeadlineSeconds: 1800
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      memory: 2Gi
+
+persistence:
+  enabled: true
+  existingClaim: ""
+  size: 10Gi
+  # null uses the cluster default; "-" explicitly selects no storage class.
+  storageClass: null
+  accessModes:
+    - ReadWriteOnce
+  annotations:
+    helm.sh/resource-policy: keep
+
+service:
+  port: 80
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  tls: []
+  # - secretName: discourse-tls
+  #   hosts: [discourse.example.com]
+
+redis:
+  enabled: true
+  image:
+    repository: redis
+    tag: 8.2.11-alpine
+    digest: sha256:3e6f5cab76a2cdcc5f61fb949a4f53e44e9972bd019bb0481ff5332b179f214e
+    pullPolicy: IfNotPresent
+  auth:
+    existingSecret: discourse-redis
+    passwordKey: password
+  # Used only with redis.enabled=false. The same auth Secret is required.
+  external:
+    host: ""
+    port: 6379
+  persistence:
+    enabled: true
+    size: 2Gi
+    storageClass: null
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      memory: 512Mi
+
+# Values for non-secret Discourse settings only. Credentials go in extraEnvFrom.
+extraEnv: []
+# - name: DISCOURSE_SMTP_ADDRESS
+#   value: smtp.example.com
+extraEnvFrom: []
+# - secretRef:
+#     name: discourse-smtp
+
+# Upstream /sbin/boot requires root to initialize runit and drop privileges.
+# Rails/Sidekiq run as the image's discourse user. Do not force runAsNonRoot.
+podSecurityContext:
+  seccompProfile:
+    type: RuntimeDefault
+securityContext:
+  runAsUser: 0
+podAnnotations: {}
+nodeSelector: {}
+tolerations: []
+affinity: {}

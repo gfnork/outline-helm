@@ -1,0 +1,33 @@
+name: Validate Discourse chart
+
+on:
+  pull_request:
+    paths:
+      - charts/discourse/**
+      - scripts/check-discourse-chart.py
+      - .github/workflows/discourse-ci.yml
+  push:
+    branches: [master]
+    paths:
+      - charts/discourse/**
+      - scripts/check-discourse-chart.py
+      - .github/workflows/discourse-ci.yml
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: azure/setup-helm@v5
+        with:
+          version: v4.2.0
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - run: python -m pip install PyYAML==6.0.3
+      - run: helm lint --strict charts/discourse
+      - run: python scripts/check-discourse-chart.py
+      - run: helm package charts/discourse --destination /tmp/chart-packages

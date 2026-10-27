@@ -121,8 +121,9 @@ spec:
           {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}	  
+          command:
+            - "/opt/outline/node_modules/.bin/sequelize"
           args:
-            - "yarn"
             - "db:migrate"
             - "--env=production-ssl-disabled"
       containers:

@@ -1,0 +1,17 @@
+This is a community-maintained chart using the experimental upstream Discourse image.
+
+Create the referenced database and Redis Secrets before starting pods.
+Create the PostgreSQL database and required extensions before running migrations.
+Migrations never run automatically on web pod startup.
+
+Read charts/discourse/README.md for the staged install/upgrade procedure.
+Do not attach a Bitnami application PVC directly: its layout differs from /shared.
+Back up the database AND uploads before migrating or upgrading.
+
+{{- if .Values.migration.enabled }}
+Migration Job: {{ include "discourse.fullname" . }}-migration
+Web/Sidekiq is disabled. Wait for the Job to succeed before enabling it.
+{{- else if .Values.web.enabled }}
+Web and embedded Sidekiq run together in a single pod with Recreate updates.
+Internal Service: {{ include "discourse.fullname" . }}:{{ .Values.service.port }}
+{{- end }}
