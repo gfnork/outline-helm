@@ -15,7 +15,8 @@ the `discourse_docker` launcher. Test a restore before using this chart for a li
 - One application replica with `Recreate` updates. Nginx, the web processes, and
   embedded Sidekiq run under the image's upstream supervisor in the same container.
   `web.workers` and `web.sidekiqWorkers` set their process counts. This first release
-  does not support independently scaling the web and worker processes.
+  does not support independently scaling the web and worker processes. Set
+  `web.sidekiqWorkers=0` during restore validation to pause background jobs.
 - External PostgreSQL only. Provision the database, role, and extensions required
   by the selected Discourse version before migration. The chart does not create
   database roles, grant privileges, install extensions, or alter PostgreSQL volumes.
@@ -113,8 +114,13 @@ checkout. Keep using the same `forum-values.yaml` on every step; do not use
    ```sh
    helm upgrade --install forum ./charts/discourse -n forum \
      -f /secure/path/forum-values.yaml --set web.enabled=false \
-     --set migration.enabled=false --wait --timeout 15m
+     --set migration.enabled=false
+   kubectl -n forum rollout status statefulset/forum-redis --timeout=15m
    ```
+
+   Do not use `--wait` for this first step: an upload PVC using
+   `WaitForFirstConsumer` remains Pending until the migration or restore pod
+   mounts it. Skip the Redis rollout check when using external Redis.
 
 3. Run the explicit migration Job (a failed Job is not automatically retried):
 

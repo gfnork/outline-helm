@@ -24,6 +24,7 @@ web:
   enabled: true
   # Upstream supervisor manages the web processes AND embedded Sidekiq.
   workers: 2
+  # Set to 0 during restore/cutover validation to leave queued jobs untouched.
   sidekiqWorkers: 1
   terminationGracePeriodSeconds: 120
   resources:

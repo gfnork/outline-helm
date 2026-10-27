@@ -73,6 +73,8 @@ assert one(external, "Ingress")["spec"]["tls"][0]["secretName"] == "forum-tls"
 assert "redis.external.host" in render("--set", "redis.enabled=false", fails=True)
 assert "database" in render("--set", "database.existingSecret=", fails=True)
 assert "web" in render("--set", "web.workers=0", fails=True)
+paused = render("--set", "web.sidekiqWorkers=0")
+assert env(one(paused, "Deployment")["spec"]["template"]["spec"]["containers"][0])["UNICORN_SIDEKIQS"]["value"] == "0"
 assert "chart-managed" in render(
     "--set", "extraEnv[0].name=MIGRATE_ON_BOOT", "--set-string", "extraEnv[0].value=1", fails=True
 )
