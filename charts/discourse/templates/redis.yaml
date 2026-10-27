@@ -1,0 +1,129 @@
+{{- if .Values.redis.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "discourse.fullname" . }}-redis
+  labels:
+    {{- include "discourse.labels" . | nindent 4 }}
+spec:
+  clusterIP: None
+  ports:
+    - name: redis
+      port: 6379
+      targetPort: redis
+  selector:
+    {{- include "discourse.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: redis
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "discourse.fullname" . }}-redis
+  labels:
+    {{- include "discourse.labels" . | nindent 4 }}
+spec:
+  serviceName: {{ include "discourse.fullname" . }}-redis
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "discourse.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: redis
+  template:
+    metadata:
+      labels:
+        {{- include "discourse.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: redis
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 999
+        runAsGroup: 999
+        fsGroup: 999
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: redis
+          image: {{ include "discourse.image" .Values.redis.image | quote }}
+          imagePullPolicy: {{ .Values.redis.image.pullPolicy }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: [ALL]
+          command: [/bin/sh, -ec]
+          args:
+            - |
+              umask 077
+              password_hash="$(sha256sum /run/secrets/redis/password)"
+              password_hash="${password_hash%% *}"
+              printf 'user default on #%s ~* &* +@all\n' "$password_hash" > /tmp/users.acl
+              exec redis-server --aclfile /tmp/users.acl --appendonly yes --appendfsync everysec --dir /data
+          env:
+            - name: REDISCLI_AUTH
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.redis.auth.existingSecret }}
+                  key: {{ .Values.redis.auth.passwordKey }}
+          ports:
+            - name: redis
+              containerPort: 6379
+          startupProbe:
+            exec:
+              command: [/bin/sh, -ec, 'test "$(redis-cli --raw ping)" = PONG']
+            periodSeconds: 5
+            failureThreshold: 180
+          readinessProbe:
+            exec:
+              command: [/bin/sh, -ec, 'test "$(redis-cli --raw ping)" = PONG']
+            periodSeconds: 5
+            timeoutSeconds: 3
+          livenessProbe:
+            exec:
+              command: [/bin/sh, -ec, 'test "$(redis-cli --raw ping)" = PONG']
+            periodSeconds: 20
+            timeoutSeconds: 3
+            failureThreshold: 6
+          resources:
+            {{- toYaml .Values.redis.resources | nindent 12 }}
+          volumeMounts:
+            - name: data
+              mountPath: /data
+            - name: password
+              mountPath: /run/secrets/redis
+              readOnly: true
+      volumes:
+        - name: password
+          secret:
+            secretName: {{ .Values.redis.auth.existingSecret }}
+            items:
+              - key: {{ .Values.redis.auth.passwordKey }}
+                path: password
+      {{- if not .Values.redis.persistence.enabled }}
+        - name: data
+          emptyDir: {}
+      {{- end }}
+      {{- include "discourse.scheduling" (dict "Values" (dict "nodeSelector" .Values.nodeSelector "tolerations" .Values.tolerations "affinity" .Values.affinity)) | nindent 6 }}
+  {{- if .Values.redis.persistence.enabled }}
+  persistentVolumeClaimRetentionPolicy:
+    whenDeleted: Retain
+    whenScaled: Retain
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: [ReadWriteOnce]
+        {{- if eq .Values.redis.persistence.storageClass "-" }}
+        storageClassName: ""
+        {{- else if .Values.redis.persistence.storageClass }}
+        storageClassName: {{ .Values.redis.persistence.storageClass | quote }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.redis.persistence.size }}
+  {{- end }}
+{{- end }}

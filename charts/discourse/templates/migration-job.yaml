@@ -1,0 +1,54 @@
+{{- if .Values.migration.enabled }}
+{{- if .Values.web.enabled }}
+{{- fail "Stop the web/Sidekiq deployment before migrating: set web.enabled=false and wait for its pod to terminate" }}
+{{- end }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "discourse.fullname" . }}-migration
+  labels:
+    {{- include "discourse.labels" . | nindent 4 }}
+spec:
+  backoffLimit: {{ .Values.migration.backoffLimit }}
+  activeDeadlineSeconds: {{ .Values.migration.activeDeadlineSeconds }}
+  template:
+    metadata:
+      labels:
+        {{- include "discourse.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: migration
+    spec:
+      restartPolicy: Never
+      automountServiceAccountToken: false
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: migrate
+          image: {{ include "discourse.image" .Values.image | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          command: [/bin/bash, -ec]
+          args:
+            - |
+              mkdir -p /shared/log/rails /shared/uploads /shared/backups /shared/tmp/backups /shared/tmp/restores
+              chown discourse:www-data /shared/log/rails /shared/uploads /shared/backups /shared/tmp/backups /shared/tmp/restores
+              cd /var/www/discourse
+              # Without /sbin/boot, discard any build-time config so Discourse
+              # selects its native environment provider for this Job's Secrets.
+              rm -f config/discourse.conf
+              exec sudo -E -H -u discourse bundle exec rake db:migrate
+          env:
+            {{- include "discourse.env" . | nindent 12 }}
+          {{- with .Values.extraEnvFrom }}
+          envFrom:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          resources:
+            {{- toYaml .Values.migration.resources | nindent 12 }}
+          volumeMounts:
+            - name: shared
+              mountPath: /shared
+      volumes:
+        {{- include "discourse.sharedVolume" . | nindent 8 }}
+      {{- include "discourse.scheduling" . | nindent 6 }}
+{{- end }}

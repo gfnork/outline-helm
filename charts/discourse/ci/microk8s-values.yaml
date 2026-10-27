@@ -1,0 +1,21 @@
+# Example for an ISOLATED restore rehearsal, never the production database/PVC.
+fullnameOverride: discourse-staging
+hostname: discourse-staging.example.com
+database:
+  host: postgresql.database.svc.cluster.local
+  name: forum_staging
+  username: discourse_staging
+  existingSecret: discourse-staging-database
+redis:
+  auth:
+    existingSecret: discourse-staging-redis
+  persistence:
+    storageClass: microk8s-hostpath
+persistence:
+  storageClass: microk8s-hostpath
+ingress:
+  enabled: false
+extraEnv:
+  # Prevent restored jobs from sending email during the rehearsal.
+  - name: DISCOURSE_DISABLE_EMAILS
+    value: "yes"
