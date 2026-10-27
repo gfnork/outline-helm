@@ -3,6 +3,27 @@ entries:
   discourse:
   - apiVersion: v2
     appVersion: 2026.7.4
+    created: "2026-10-27T22:53:03.115047707Z"
+    description: Community Helm chart for Discourse using upstream container images
+    digest: 27061473c5524be024adb7b1c75bea6ee5e841bb5c469183d75edb86e13d0120
+    home: https://www.discourse.org/
+    keywords:
+    - discourse
+    - forum
+    kubeVersion: '>=1.32.0-0'
+    maintainers:
+    - email: qiong.wu@gfnork.de
+      name: Qiong Wu
+    name: discourse
+    sources:
+    - https://github.com/gfnork/outline-helm
+    - https://github.com/discourse/discourse_docker
+    type: application
+    urls:
+    - https://github.com/gfnork/outline-helm/releases/download/discourse-0.1.1/discourse-0.1.1.tgz
+    version: 0.1.1
+  - apiVersion: v2
+    appVersion: 2026.7.4
     created: "2026-10-27T22:45:02.173092013Z"
     description: Community Helm chart for Discourse using upstream container images
     digest: 9aa5e8d55f43509b48feb7f650764e34bd3d039875f892671997b7a1bceee90d
@@ -171,4 +192,4 @@ entries:
     urls:
     - https://github.com/gfnork/outline-helm/releases/download/outline-0.2.8/outline-0.2.8.tgz
     version: 0.2.8
-generated: "2026-10-27T22:45:02.173123702Z"
+generated: "2026-10-27T22:53:03.115075232Z"
