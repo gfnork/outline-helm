@@ -1,0 +1,19 @@
+apiVersion: v2
+name: roadatlas
+description: Helm chart for the RoadAtlas road-trip planner
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+kubeVersion: ">=1.28.0-0"
+home: https://roadatlas.eu
+sources:
+  - https://github.com/gfnork/roadatlas-modern
+  - https://github.com/gfnork/outline-helm
+maintainers:
+  - name: Qiong Wu
+    email: qiong.wu@gfnork.de
+keywords:
+  - travel
+  - roadtrip
+  - nextjs
+

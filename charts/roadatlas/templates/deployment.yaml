@@ -1,0 +1,108 @@
+{{- $placeRelease := required "placeIndex.release must select an uploaded immutable data release" .Values.placeIndex.release -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "roadatlas.fullname" . }}
+  labels:
+    {{- include "roadatlas.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "roadatlas.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "roadatlas.selectorLabels" . | nindent 8 }}
+      annotations:
+        roadatlas.eu/place-index-release: {{ $placeRelease | quote }}
+        {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      serviceAccountName: {{ include "roadatlas.serviceAccountName" . }}
+      automountServiceAccountToken: false
+      terminationGracePeriodSeconds: {{ .Values.app.terminationGracePeriodSeconds }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      initContainers:
+        - name: migrate
+          image: {{ include "roadatlas.image" .Values.image | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          envFrom:
+            - secretRef:
+                name: {{ .Values.runtime.existingSecret }}
+          env:
+            {{- include "roadatlas.appEnv" . | nindent 12 }}
+          command: ["/bin/sh", "-ec"]
+          args:
+            - |
+              for attempt in $(seq 1 90); do
+                if node -e 'const pg=require("pg"); const p=new pg.Pool({connectionString:process.env.DATABASE_URL,max:1}); p.query("select 1").then(()=>p.end()).then(()=>process.exit(0)).catch(()=>p.end().finally(()=>process.exit(1)))'; then
+                  exec npm run db:migrate:production
+                fi
+                echo "Waiting for PostgreSQL ($attempt/90)"
+                sleep 2
+              done
+              echo "PostgreSQL did not become ready" >&2
+              exit 1
+          resources:
+            {{- toYaml .Values.migration.resources | nindent 12 }}
+      containers:
+        - name: roadatlas
+          image: {{ include "roadatlas.image" .Values.image | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          envFrom:
+            - secretRef:
+                name: {{ .Values.runtime.existingSecret }}
+          env:
+            {{- include "roadatlas.appEnv" . | nindent 12 }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.app.port }}
+              protocol: TCP
+          startupProbe:
+            {{- toYaml .Values.app.startupProbe | nindent 12 }}
+          readinessProbe:
+            {{- toYaml .Values.app.readinessProbe | nindent 12 }}
+          livenessProbe:
+            {{- toYaml .Values.app.livenessProbe | nindent 12 }}
+          resources:
+            {{- toYaml .Values.app.resources | nindent 12 }}
+          volumeMounts:
+            - name: place-data
+              mountPath: /var/lib/roadatlas/place-index
+              subPath: place-index
+              readOnly: true
+            - name: place-data
+              mountPath: /var/lib/roadatlas/geonames
+              subPath: geonames
+              readOnly: true
+      volumes:
+        - name: place-data
+          hostPath:
+            path: {{ printf "%s/%s" (.Values.placeIndex.hostRoot | trimSuffix "/") $placeRelease | quote }}
+            type: Directory
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+

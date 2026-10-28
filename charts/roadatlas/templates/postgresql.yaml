@@ -1,0 +1,122 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "roadatlas.postgresqlName" . }}
+  labels:
+    {{- include "roadatlas.labels" . | nindent 4 }}
+    app.kubernetes.io/component: database
+  {{- with .Values.postgresql.persistence.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  accessModes:
+    {{- toYaml .Values.postgresql.persistence.accessModes | nindent 4 }}
+  {{- if eq (.Values.postgresql.persistence.storageClass | toString) "-" }}
+  storageClassName: ""
+  {{- else if .Values.postgresql.persistence.storageClass }}
+  storageClassName: {{ .Values.postgresql.persistence.storageClass | quote }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.postgresql.persistence.size }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "roadatlas.postgresqlName" . }}
+  labels:
+    {{- include "roadatlas.labels" . | nindent 4 }}
+    app.kubernetes.io/component: database
+spec:
+  type: ClusterIP
+  selector:
+    {{- include "roadatlas.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: database
+  ports:
+    - name: postgresql
+      port: 5432
+      targetPort: postgresql
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "roadatlas.postgresqlName" . }}
+  labels:
+    {{- include "roadatlas.labels" . | nindent 4 }}
+    app.kubernetes.io/component: database
+spec:
+  serviceName: {{ include "roadatlas.postgresqlName" . }}
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "roadatlas.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: database
+  template:
+    metadata:
+      labels:
+        {{- include "roadatlas.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: database
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        fsGroup: 70
+        fsGroupChangePolicy: OnRootMismatch
+      containers:
+        - name: postgresql
+          image: {{ include "roadatlas.image" .Values.postgresql.image | quote }}
+          imagePullPolicy: {{ .Values.postgresql.image.pullPolicy }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+            runAsGroup: 70
+            runAsNonRoot: true
+            runAsUser: 70
+            seccompProfile:
+              type: RuntimeDefault
+          env:
+            - name: POSTGRES_DB
+              value: {{ .Values.postgresql.database | quote }}
+            - name: POSTGRES_USER
+              value: {{ .Values.postgresql.username | quote }}
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.runtime.existingSecret }}
+                  key: {{ .Values.postgresql.passwordKey }}
+            - name: POSTGRES_INITDB_ARGS
+              value: --auth-host=scram-sha-256
+            - name: PGDATA
+              value: /var/lib/postgresql/18/docker
+          ports:
+            - name: postgresql
+              containerPort: 5432
+          startupProbe:
+            exec:
+              command: ["/bin/sh", "-ec", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 30
+          readinessProbe:
+            exec:
+              command: ["/bin/sh", "-ec", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+          livenessProbe:
+            exec:
+              command: ["/bin/sh", "-ec", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
+            periodSeconds: 20
+            timeoutSeconds: 3
+            failureThreshold: 6
+          resources:
+            {{- toYaml .Values.postgresql.resources | nindent 12 }}
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ include "roadatlas.postgresqlName" . }}
+

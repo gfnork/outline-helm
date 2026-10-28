@@ -1,0 +1,10 @@
+RoadAtlas is configured for https://{{ .Values.hostname }}/
+
+Dataset release: {{ .Values.placeIndex.release }}
+
+Check rollout status:
+  microk8s kubectl -n {{ .Release.Namespace }} rollout status deployment/{{ include "roadatlas.fullname" . }}
+
+Check application readiness:
+  curl --fail https://{{ .Values.hostname }}/api/health/ready
+

@@ -1,0 +1,126 @@
+replicaCount: 1
+
+image:
+  repository: ghcr.io/gfnork/roadatlas-modern
+  tag: "0.1.0"
+  digest: ""
+  pullPolicy: IfNotPresent
+
+imagePullSecrets:
+  - name: roadatlas-registry
+
+nameOverride: ""
+fullnameOverride: ""
+hostname: app.roadatlas.eu
+
+runtime:
+  existingSecret: roadatlas-runtime
+
+app:
+  port: 3000
+  terminationGracePeriodSeconds: 30
+  resources:
+    requests:
+      cpu: 250m
+      memory: 768Mi
+    limits:
+      memory: 1500Mi
+  startupProbe:
+    httpGet:
+      path: /api/health/live
+      port: http
+    periodSeconds: 5
+    timeoutSeconds: 3
+    failureThreshold: 24
+  readinessProbe:
+    httpGet:
+      path: /api/health/ready
+      port: http
+    periodSeconds: 10
+    timeoutSeconds: 8
+    failureThreshold: 3
+  livenessProbe:
+    httpGet:
+      path: /api/health/live
+      port: http
+    periodSeconds: 20
+    timeoutSeconds: 3
+    failureThreshold: 3
+
+migration:
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      memory: 512Mi
+
+placeIndex:
+  hostRoot: /srv/roadatlas-data/releases
+  release: ""
+
+config:
+  betterAuthUrl: https://app.roadatlas.eu
+  photonApiUrl: https://app.chibigeo.com/v1/photon
+  osrmApiUrl: https://router.project-osrm.org
+  tripAlgorithm: v2
+  localGeocoderMaxDistanceKm: "120"
+
+postgresql:
+  image:
+    repository: postgres
+    tag: "18.6-alpine3.23"
+    digest: sha256:1a0c23d53c1ad77468c8653fa6eed4f4105cfbef9e6f027bc1dfeb16949a8c29
+    pullPolicy: IfNotPresent
+  database: roadatlas
+  username: roadatlas
+  passwordKey: POSTGRES_PASSWORD
+  persistence:
+    size: 10Gi
+    storageClass: null
+    accessModes:
+      - ReadWriteOnce
+    annotations:
+      helm.sh/resource-policy: keep
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      memory: 768Mi
+
+serviceAccount:
+  create: true
+  name: ""
+  annotations: {}
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: true
+  className: public
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+  tls:
+    secretName: roadatlas-tls
+
+podAnnotations: {}
+podSecurityContext: {}
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+  readOnlyRootFilesystem: false
+  runAsGroup: 1000
+  runAsNonRoot: true
+  runAsUser: 1000
+  seccompProfile:
+    type: RuntimeDefault
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+

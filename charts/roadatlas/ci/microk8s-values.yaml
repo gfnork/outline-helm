@@ -1,0 +1,9 @@
+image:
+  repository: ghcr.io/gfnork/roadatlas-modern
+  tag: test
+imagePullSecrets: []
+placeIndex:
+  release: test-release
+runtime:
+  existingSecret: roadatlas-runtime
+
