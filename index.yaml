@@ -43,6 +43,25 @@ entries:
     urls:
     - https://github.com/gfnork/outline-helm/releases/download/discourse-0.1.0/discourse-0.1.0.tgz
     version: 0.1.0
+  matomo:
+  - apiVersion: v2
+    appVersion: 5.14.2
+    created: "2026-10-28T09:42:07.403553035Z"
+    description: Matomo Analytics using the official Docker image and optional official
+      MariaDB
+    digest: 159498ea825c4cf746669f0c63607c4288ff03fc01b0a71fbf1d480930df00e8
+    home: https://matomo.org
+    maintainers:
+    - email: qiong.wu@gfnork.de
+      name: Qiong Wu
+    name: matomo
+    sources:
+    - https://github.com/matomo-org/docker
+    - https://github.com/gfnork/outline-helm
+    type: application
+    urls:
+    - https://github.com/gfnork/outline-helm/releases/download/matomo-0.1.0/matomo-0.1.0.tgz
+    version: 0.1.0
   outline:
   - apiVersion: v2
     appVersion: 1.12.0
@@ -222,4 +241,4 @@ entries:
     urls:
     - https://github.com/gfnork/outline-helm/releases/download/outline-0.2.8/outline-0.2.8.tgz
     version: 0.2.8
-generated: "2026-10-27T23:55:11.281714127Z"
+generated: "2026-10-28T09:42:07.403578753Z"
