@@ -40,7 +40,7 @@ for d, spec in pods(docs):
     assert 'valueFrom' in env['MATOMO_DATABASE_PASSWORD']
     assert c['securityContext']['readOnlyRootFilesystem'] is True
     mounts = {m['mountPath']: m for m in c['volumeMounts']}
-    for path in ('config', 'plugins', 'tmp', 'js', 'misc/user'):
+    for path in ('config', 'plugins', 'tmp', 'js', 'misc'):
         assert mounts['/var/www/html/' + path]['name'] == 'data'
     script = spec['initContainers'][0]['args'][0]
     assert 'cp -a /usr/src/matomo/. /application/' in script

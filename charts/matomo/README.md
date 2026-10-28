@@ -45,7 +45,7 @@ only once configuration and migration checks are complete.
 ## Persistence and upgrades
 
 Application code is copied from the pinned image into an `emptyDir` at pod startup.
-Only `config`, `plugins`, `tmp`, `js`, and `misc/user` are persistent. New official bundled
+Only `config`, `plugins`, `tmp`, `js`, and `misc` are persistent. New official bundled
 plugins and `global.ini.php` replace their old versions during a web or explicit
 migration startup. Additional custom/premium plugin directories are preserved;
 check their compatibility before an upgrade. Cron jobs copy application code into
@@ -75,9 +75,9 @@ Test the procedure on restored data before redirecting production traffic.
 3. Restore the SQL dump into the destination database. Preserve all tables,
    including historical archives, logs, users, sites, settings and plugin tables.
 4. Copy the old `config` directory into `config`, old `plugins` into `plugins`,
-   old `tmp` into `tmp`, old `js` into `js`, and old `misc/user` into `misc-user` on the new application
+   old `tmp` into `tmp`, old `js` into `js`, and the complete old `misc` directory into `misc` on the new application
    PVC. Preserve configuration secrets, salts, SMTP settings, trusted hosts,
-   custom plugins and GeoIP/user files. Do not copy old application core code.
+   custom plugins and GeoIP/user files, including databases directly under `misc`. Do not copy old application core code.
    Inspect any additional site-specific persisted files and absolute paths.
 5. Privately update only the database connection fields in `config/config.ini.php`
    for the destination database. Preserve the existing table prefix and remaining

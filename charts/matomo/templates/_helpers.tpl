@@ -53,7 +53,7 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 - {name: data, mountPath: /var/www/html/plugins, subPath: plugins}
 - {name: data, mountPath: /var/www/html/tmp, subPath: tmp}
 - {name: data, mountPath: /var/www/html/js, subPath: js}
-- {name: data, mountPath: /var/www/html/misc/user, subPath: misc-user}
+- {name: data, mountPath: /var/www/html/misc, subPath: misc}
 - {name: runtime, mountPath: /tmp, subPath: tmp}
 - {name: runtime, mountPath: /var/run/apache2, subPath: apache-run}
 - {name: runtime, mountPath: /var/lock/apache2, subPath: apache-lock}
@@ -103,10 +103,11 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
       chmod 1777 /runtime/tmp
       chown 33:33 /runtime/apache-run /runtime/apache-lock
       cp -a /usr/src/matomo/. /application/
-      mkdir -p /data/config /data/plugins /data/tmp /data/misc-user /data/js
+      mkdir -p /data/config /data/plugins /data/tmp /data/misc /data/js
       {{- if .initializeData }}
       cp /usr/src/matomo/config/global.ini.php /data/config/global.ini.php
       cp -a /usr/src/matomo/js/. /data/js/
+      cp -a /usr/src/matomo/misc/. /data/misc/
       for plugin in /usr/src/matomo/plugins/*; do
         name="${plugin##*/}"
         rm -rf "/data/plugins/$name"
@@ -117,7 +118,7 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
         cp /seed/config.ini.php /data/config/config.ini.php
       fi
       {{- end }}
-      chown -R 33:33 /data/config /data/plugins /data/tmp /data/misc-user /data/js
+      chown -R 33:33 /data/config /data/plugins /data/tmp /data/misc /data/js
       {{- end }}
       chown -R 33:33 /application
   resources:
