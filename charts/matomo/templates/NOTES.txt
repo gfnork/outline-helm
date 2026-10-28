@@ -1,0 +1,4 @@
+Official Matomo: {{ include "matomo.image" .Values.image }}
+Service: {{ include "matomo.fullname" . }}:{{ .Values.service.port }}
+Back up the database and persistent files together before schema upgrades.
+See the chart README for fresh installation and Bitnami migration procedures.

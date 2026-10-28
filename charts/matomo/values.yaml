@@ -1,0 +1,97 @@
+nameOverride: ""
+fullnameOverride: ""
+image:
+  repository: docker.io/library/matomo
+  tag: 5.14.2-apache
+  digest: sha256:a54f3b69220b43cdcf2607f03fa2622d4f796cc3ce2820b31012b445c1fc43ed
+  pullPolicy: IfNotPresent
+imagePullSecrets: []
+web:
+  enabled: true
+  resources:
+    requests: {cpu: 250m, memory: 512Mi}
+    limits: {memory: 2Gi}
+  startupProbe:
+    httpGet: {path: /index.php, port: http}
+    failureThreshold: 60
+    periodSeconds: 5
+    timeoutSeconds: 5
+  readinessProbe:
+    httpGet: {path: /index.php, port: http}
+    periodSeconds: 10
+    timeoutSeconds: 5
+  livenessProbe:
+    tcpSocket: {port: http}
+    periodSeconds: 20
+    timeoutSeconds: 5
+service:
+  port: 80
+persistence:
+  enabled: true
+  existingClaim: ""
+  storageClass: ""
+  size: 8Gi
+  accessModes: [ReadWriteOnce]
+  keep: true
+# Optional complete config.ini.php, supplied through a Secret; never put it in values.
+config:
+  existingSecret: ""
+  key: config.ini.php
+database:
+  host: mariadb
+  port: 3306
+  name: matomo
+  username: matomo
+  existingSecret: matomo-database
+  passwordKey: password
+# Uses the upstream MariaDB image; disable for an existing database.
+mariadb:
+  enabled: false
+  image:
+    repository: docker.io/library/mariadb
+    tag: 12.3.3
+    digest: sha256:d46e102fa8b9b72bfcdeb56f9dd538742092119dc8b11f31fe662605cd234cd9
+    pullPolicy: IfNotPresent
+  rootPasswordKey: root-password
+  persistence:
+    existingClaim: ""
+    storageClass: ""
+    size: 16Gi
+    keep: true
+  resources:
+    requests: {cpu: 250m, memory: 1Gi}
+    limits: {memory: 4Gi}
+php:
+  memoryLimit: 1024M
+  uploadMaxFilesize: 32M
+  postMaxSize: 32M
+cron:
+  archive:
+    enabled: true
+    schedule: "*/5 * * * *"
+    url: https://matomo.example.org
+    suspend: true
+  scheduledTasks:
+    enabled: true
+    schedule: "*/5 * * * *"
+    suspend: true
+  resources:
+    requests: {cpu: 250m, memory: 512Mi}
+    limits: {memory: 2Gi}
+# An explicit, operator-controlled schema upgrade; no automatic Helm hook.
+migration:
+  enabled: false
+  resources:
+    requests: {cpu: 250m, memory: 512Mi}
+    limits: {memory: 2Gi}
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  host: matomo.example.org
+  tls: []
+podAnnotations: {}
+nodeSelector: {}
+tolerations: []
+affinity: {}
+extraEnv: []

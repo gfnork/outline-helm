@@ -1,0 +1,13 @@
+apiVersion: v2
+name: matomo
+description: Matomo Analytics using the official Docker image and optional official MariaDB
+type: application
+version: 0.1.0
+appVersion: "5.14.2"
+home: https://matomo.org
+sources:
+  - https://github.com/matomo-org/docker
+  - https://github.com/gfnork/outline-helm
+maintainers:
+  - name: Qiong Wu
+    email: qiong.wu@gfnork.de

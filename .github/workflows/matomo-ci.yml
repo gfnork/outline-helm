@@ -1,0 +1,36 @@
+name: Validate Matomo chart
+
+on:
+  pull_request:
+    paths:
+      - charts/matomo/**
+      - scripts/check-matomo-chart.py
+      - scripts/check-matomo-runtime.py
+      - .github/workflows/matomo-ci.yml
+  push:
+    branches: [master]
+    paths:
+      - charts/matomo/**
+      - scripts/check-matomo-chart.py
+      - scripts/check-matomo-runtime.py
+      - .github/workflows/matomo-ci.yml
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: azure/setup-helm@v5
+        with:
+          version: v4.2.0
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - run: python -m pip install PyYAML==6.0.3
+      - run: helm lint --strict charts/matomo
+      - run: python scripts/check-matomo-chart.py
+      - run: python scripts/check-matomo-runtime.py
+      - run: helm package charts/matomo --destination /tmp/chart-packages

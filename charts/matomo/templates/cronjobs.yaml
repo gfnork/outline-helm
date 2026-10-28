@@ -1,0 +1,63 @@
+{{- $root := . -}}
+{{- range $kind, $job := .Values.cron }}
+{{- if and (kindIs "map" $job) $job.enabled }}
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "matomo.fullname" $root }}-{{ $kind | kebabcase }}
+  labels:
+    {{- include "matomo.labels" $root | nindent 4 }}
+spec:
+  schedule: {{ $job.schedule | quote }}
+  suspend: {{ $job.suspend }}
+  concurrencyPolicy: Forbid
+  startingDeadlineSeconds: 240
+  successfulJobsHistoryLimit: 2
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      activeDeadlineSeconds: 3600
+      template:
+        metadata:
+          labels:
+            {{- include "matomo.selectorLabels" $root | nindent 12 }}
+            app.kubernetes.io/component: {{ $kind | kebabcase }}
+        spec:
+          automountServiceAccountToken: false
+          restartPolicy: Never
+          securityContext: {fsGroup: 33, fsGroupChangePolicy: OnRootMismatch}
+          initContainers:
+            {{- include "matomo.init" (dict "root" $root "initializeData" false) | nindent 12 }}
+          containers:
+            - name: matomo
+              image: {{ include "matomo.image" $root.Values.image | quote }}
+              imagePullPolicy: {{ $root.Values.image.pullPolicy }}
+              command: [php, /var/www/html/console]
+              args:
+                {{- if eq $kind "archive" }}
+                - core:archive
+                - {{ printf "--url=%s" $job.url | quote }}
+                {{- else }}
+                - core:run-scheduled-tasks
+                {{- end }}
+              securityContext:
+                runAsUser: 33
+                runAsGroup: 33
+                runAsNonRoot: true
+                readOnlyRootFilesystem: true
+                allowPrivilegeEscalation: false
+                capabilities: {drop: [ALL]}
+                seccompProfile: {type: RuntimeDefault}
+              env:
+                {{- include "matomo.env" $root | nindent 16 }}
+              resources:
+                {{- toYaml $root.Values.cron.resources | nindent 16 }}
+              volumeMounts:
+                {{- include "matomo.mounts" $root | nindent 16 }}
+          volumes:
+            {{- include "matomo.volumes" $root | nindent 12 }}
+          {{- include "matomo.scheduling" $root | nindent 10 }}
+{{- end }}
+{{- end }}

@@ -1,0 +1,40 @@
+{{- if .Values.migration.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "matomo.fullname" . }}-migrate-{{ .Release.Revision }}
+  labels:
+    {{- include "matomo.labels" . | nindent 4 }}
+spec:
+  backoffLimit: 0
+  activeDeadlineSeconds: 7200
+  template:
+    spec:
+      automountServiceAccountToken: false
+      restartPolicy: Never
+      securityContext: {fsGroup: 33, fsGroupChangePolicy: OnRootMismatch}
+      initContainers:
+        {{- include "matomo.init" (dict "root" . "initializeData" true) | nindent 8 }}
+      containers:
+        - name: migrate
+          image: {{ include "matomo.image" .Values.image | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: [php, /var/www/html/console, core:update, --yes]
+          securityContext:
+            runAsUser: 33
+            runAsGroup: 33
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities: {drop: [ALL]}
+            seccompProfile: {type: RuntimeDefault}
+          env:
+            {{- include "matomo.env" . | nindent 12 }}
+          resources:
+            {{- toYaml .Values.migration.resources | nindent 12 }}
+          volumeMounts:
+            {{- include "matomo.mounts" . | nindent 12 }}
+      volumes:
+        {{- include "matomo.volumes" . | nindent 8 }}
+      {{- include "matomo.scheduling" . | nindent 6 }}
+{{- end }}

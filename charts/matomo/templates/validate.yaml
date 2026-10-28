@@ -1,0 +1,10 @@
+{{- if .Values.migration.enabled -}}
+{{- if .Values.web.enabled -}}
+{{- fail "Disable web.enabled before running the explicit database migration Job" -}}
+{{- end -}}
+{{- range $name, $job := .Values.cron -}}
+{{- if and (kindIs "map" $job) $job.enabled (not $job.suspend) -}}
+{{- fail (printf "Suspend cron.%s before running the database migration Job" $name) -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}

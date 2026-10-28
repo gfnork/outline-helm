@@ -1,0 +1,104 @@
+{{- if .Values.mariadb.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "matomo.fullname" . }}-mariadb
+  labels:
+    {{- include "matomo.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  ports:
+    - {name: mysql, port: 3306, targetPort: mysql}
+  selector:
+    {{- include "matomo.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: database
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "matomo.fullname" . }}-mariadb
+  labels:
+    {{- include "matomo.labels" . | nindent 4 }}
+spec:
+  serviceName: {{ include "matomo.fullname" . }}-mariadb
+  replicas: 1
+  persistentVolumeClaimRetentionPolicy: {whenDeleted: Retain, whenScaled: Retain}
+  selector:
+    matchLabels:
+      {{- include "matomo.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: database
+  template:
+    metadata:
+      labels:
+        {{- include "matomo.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: database
+    spec:
+      automountServiceAccountToken: false
+      terminationGracePeriodSeconds: 120
+      containers:
+        - name: mariadb
+          image: {{ include "matomo.image" .Values.mariadb.image | quote }}
+          imagePullPolicy: {{ .Values.mariadb.image.pullPolicy }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: [ALL]
+              add: [CHOWN, DAC_OVERRIDE, FOWNER, SETUID, SETGID]
+            seccompProfile: {type: RuntimeDefault}
+          env:
+            - {name: MARIADB_DATABASE, value: {{ .Values.database.name | quote }}}
+            - {name: MARIADB_USER, value: {{ .Values.database.username | quote }}}
+            - name: MARIADB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ required "database.existingSecret is required" .Values.database.existingSecret }}
+                  key: {{ .Values.database.passwordKey }}
+            - name: MARIADB_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.database.existingSecret }}
+                  key: {{ .Values.mariadb.rootPasswordKey }}
+          ports:
+            - {name: mysql, containerPort: 3306}
+          startupProbe:
+            exec: {command: [healthcheck.sh, --connect, --innodb_initialized]}
+            failureThreshold: 120
+            periodSeconds: 5
+          readinessProbe:
+            exec: {command: [healthcheck.sh, --connect, --innodb_initialized]}
+            periodSeconds: 10
+            timeoutSeconds: 5
+          livenessProbe:
+            exec: {command: [healthcheck.sh, --connect, --innodb_initialized]}
+            periodSeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 6
+          resources:
+            {{- toYaml .Values.mariadb.resources | nindent 12 }}
+          volumeMounts:
+            - {name: database, mountPath: /var/lib/mysql}
+      {{- if .Values.mariadb.persistence.existingClaim }}
+      volumes:
+        - name: database
+          persistentVolumeClaim:
+            claimName: {{ .Values.mariadb.persistence.existingClaim }}
+      {{- end }}
+      {{- include "matomo.scheduling" . | nindent 6 }}
+  {{- if not .Values.mariadb.persistence.existingClaim }}
+  volumeClaimTemplates:
+    - metadata:
+        name: database
+        {{- if .Values.mariadb.persistence.keep }}
+        annotations:
+          helm.sh/resource-policy: keep
+        {{- end }}
+      spec:
+        accessModes: [ReadWriteOnce]
+        {{- if .Values.mariadb.persistence.storageClass }}
+        storageClassName: {{ .Values.mariadb.persistence.storageClass | quote }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.mariadb.persistence.size }}
+  {{- end }}
+{{- end }}
