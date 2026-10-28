@@ -23,7 +23,12 @@ spec:
         - name: migrate
           image: {{ include "matomo.image" .Values.image | quote }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          command: [php, /var/www/html/console, core:update, --yes]
+          command: [/bin/sh, -ec]
+          args:
+            - |
+              php /var/www/html/console core:update --yes
+              # Newly activated plugins can register dimensions after the first pass.
+              php /var/www/html/console core:update --yes
           securityContext:
             runAsUser: 33
             runAsGroup: 33

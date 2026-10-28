@@ -84,7 +84,9 @@ Test the procedure on restored data before redirecting production traffic.
    configuration. Review any Bitnami-specific filesystem paths.
 6. Enable `migration.enabled=true` while the web is disabled and crons remain
    suspended. Wait for the `*-migrate-<revision>` Job to succeed. This is an explicit
-   CLI `core:update --yes`; there are no automatic Helm migration hooks.
+   CLI `core:update --yes` in two idempotent passes: plugin activation in the first
+   pass can introduce dimensions requiring the second pass. There are no automatic
+   Helm migration hooks.
 7. Disable the migration Job, enable the web deployment, and test login, site/user
    counts, historical reports, custom plugins, tracking endpoints and both CLI
    tasks against the restored data. Confirm the running PHP version is patched.

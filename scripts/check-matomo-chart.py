@@ -60,7 +60,9 @@ job = next(d for d in docs if d['kind'] == 'Job')
 assert job['spec']['backoffLimit'] == 0
 assert job['spec']['template']['metadata']['labels']['app.kubernetes.io/instance'] == 'audit'
 assert job['spec']['template']['metadata']['labels']['app.kubernetes.io/component'] == 'migration'
-assert job['spec']['template']['spec']['containers'][0]['command'][-2:] == ['core:update', '--yes']
+migrate = job['spec']['template']['spec']['containers'][0]
+assert migrate['command'] == ['/bin/sh', '-ec']
+assert migrate['args'][0].count('php /var/www/html/console core:update --yes') == 2
 db = next(d for d in docs if d['kind'] == 'StatefulSet')
 assert 'volumeClaimTemplates' not in db['spec']
 assert db['spec']['persistentVolumeClaimRetentionPolicy']['whenDeleted'] == 'Retain'
