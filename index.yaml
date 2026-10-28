@@ -295,4 +295,27 @@ entries:
     urls:
     - https://github.com/gfnork/outline-helm/releases/download/outline-0.2.8/outline-0.2.8.tgz
     version: 0.2.8
-generated: "2026-10-28T10:20:02.511329042Z"
+  roadatlas:
+  - apiVersion: v2
+    appVersion: 0.1.0
+    created: "2026-10-28T13:36:48.792087794Z"
+    description: Helm chart for the RoadAtlas road-trip planner
+    digest: df3650992831109e4402f3dbaa009e0d4acc8495ddf7bb3276ea3f7fd00a12d2
+    home: https://roadatlas.eu
+    keywords:
+    - travel
+    - roadtrip
+    - nextjs
+    kubeVersion: '>=1.28.0-0'
+    maintainers:
+    - email: qiong.wu@gfnork.de
+      name: Qiong Wu
+    name: roadatlas
+    sources:
+    - https://github.com/gfnork/roadatlas-modern
+    - https://github.com/gfnork/outline-helm
+    type: application
+    urls:
+    - https://github.com/gfnork/outline-helm/releases/download/roadatlas-0.1.0/roadatlas-0.1.0.tgz
+    version: 0.1.0
+generated: "2026-10-28T13:36:48.792122204Z"
