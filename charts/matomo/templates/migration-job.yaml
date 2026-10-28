@@ -9,6 +9,10 @@ spec:
   backoffLimit: 0
   activeDeadlineSeconds: 7200
   template:
+    metadata:
+      labels:
+        {{- include "matomo.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: migration
     spec:
       automountServiceAccountToken: false
       restartPolicy: Never

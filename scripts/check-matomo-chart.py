@@ -58,6 +58,8 @@ docs = render('--set', 'web.enabled=false', '--set', 'migration.enabled=true',
 assert not any(d['kind'] in ('Deployment', 'PersistentVolumeClaim') for d in docs)
 job = next(d for d in docs if d['kind'] == 'Job')
 assert job['spec']['backoffLimit'] == 0
+assert job['spec']['template']['metadata']['labels']['app.kubernetes.io/instance'] == 'audit'
+assert job['spec']['template']['metadata']['labels']['app.kubernetes.io/component'] == 'migration'
 assert job['spec']['template']['spec']['containers'][0]['command'][-2:] == ['core:update', '--yes']
 db = next(d for d in docs if d['kind'] == 'StatefulSet')
 assert 'volumeClaimTemplates' not in db['spec']
